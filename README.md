@@ -24,11 +24,12 @@ It's simple: `assert_zone ZONE_FILE [NAMESERVER] [options]`
 
 Assuming you have a zone file named `zone.txt` in the current directory, you can run `assert_zone zone.txt` to verify that each record in the zone file matches what the nameserver responds with.
 
-You can also specify a nameserver: `assert_zone zone.txt ns1.example.com`.
+By default, it will use the nameserver listed in the SOA record in the zone file. You can also specify a custom nameserver: `assert_zone zone.txt ns1.example.com`.
 
 There are a few option flags you can add to the command:
 
 * `--color` will display the results in color
+* `--use-local-resolver` will not specify a nameserver and will use your system settings
 
 ## Development
 

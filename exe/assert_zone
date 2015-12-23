@@ -4,12 +4,18 @@ require 'bundler/setup'
 require 'assert_zone'
 require 'optparse'
 
-flags = []
+options = {
+  rspec_flags: [],
+  use_local_resolver: false
+}
 
 OptionParser.new do |opts|
   opts.banner = "Usage: assert_zone ZONE_FILE [NAMESERVER] [options]"
   opts.on('--color', 'Use color') do |v|
-    flags << '--color'
+    options[:rspec_flags] << '--color'
+  end
+  opts.on('--use-local-resolver', 'Use local resolver settings instead of explicit nameserver') do |v|
+    options[:use_local_resolver] = true
   end
   opts.on_tail('-h', '--help', 'Show this message') do
     puts opts
@@ -21,4 +27,4 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-AssertZone.run(ARGV[0], ARGV[1], flags)
+AssertZone.run(ARGV[0], nameserver: ARGV[1], rspec_flags: options[:rspec_flags], use_local_resolver: options[:use_local_resolver])
