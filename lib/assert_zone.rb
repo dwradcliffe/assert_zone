@@ -4,16 +4,23 @@ require 'rspec'
 require 'rspec-dns'
 
 module AssertZone
-  def self.run(filename, nameserver = nil, rspec_flags = [])
+  def self.run(filename, nameserver: nil, rspec_flags: [], use_local_resolver: false)
     ns_config = {}
     ns_config[:nameserver] = nameserver if nameserver
 
     zone = DNS::Zone.load(File.read(filename))
 
+    unless use_local_resolver
+      # default to nameserver from SOA in zone
+      ns_config[:nameserver] ||= zone.soa.nameserver
+      # output the custom nameserver
+      puts "Using nameserver: #{ns_config[:nameserver]}"
+    end
+
     zone.records.each do |record|
       next if ['SOA', 'NS'].include?(record.type)
 
-      fqdn = record.label == '@' ? zone.origin : "#{record.label}.#{zone.origin}"
+      fqdn = record.label == '@' ? zone.origin : "#{record.label}.#{zone.origin}".chomp('.')
 
       describe fqdn do
         if record.is_a?(DNS::Zone::RR::A)
