@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'assert_zone'
+require 'optparse'
+
+flags = []
+
+OptionParser.new do |opts|
+  opts.banner = "Usage: assert_zone ZONE_FILE [NAMESERVER] [options]"
+  opts.on('--color', 'Use color') do |v|
+    flags << '--color'
+  end
+  opts.on_tail('-h', '--help', 'Show this message') do
+    puts opts
+    exit
+  end
+  opts.on_tail('--version', 'Show version') do
+    puts "assert_zone #{AssertZone::VERSION}"
+    exit
+  end
+end.parse!
+
+AssertZone.run(ARGV[0], ARGV[1], flags)

@@ -1,5 +1,35 @@
-require "assert_zone/version"
+require 'assert_zone/version'
+require 'dns/zone'
+require 'rspec'
+require 'rspec-dns'
 
 module AssertZone
-  # Your code goes here...
+  def self.run(filename, nameserver = nil, rspec_flags = [])
+    ns_config = {}
+    ns_config[:nameserver] = nameserver if nameserver
+
+    zone = DNS::Zone.load(File.read(filename))
+
+    zone.records.each do |record|
+      next if ['SOA', 'NS'].include?(record.type)
+
+      fqdn = record.label == '@' ? zone.origin : "#{record.label}.#{zone.origin}"
+
+      describe fqdn do
+        if record.is_a?(DNS::Zone::RR::A)
+          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl).and_address(record.address) }
+        elsif record.is_a?(DNS::Zone::RR::CNAME)
+          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl).and_domainname(record.domainname.chomp('.')) }
+        elsif record.is_a?(DNS::Zone::RR::TXT)
+          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl).and_data(record.text) }
+        else
+          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl) }
+          warn "WARN: Unsupported record type: #{record.type}. Value of record for #{fqdn} will not be tested."
+        end
+      end
+    end
+
+    RSpec::Core::Runner.run(rspec_flags)
+
+  end
 end
