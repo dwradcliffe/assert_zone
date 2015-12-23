@@ -1,8 +1,6 @@
-# AssertZone
+# assert_zone
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/assert_zone`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This small utility will help you verify that a DNS server is responding with the correct information, based on a zone file.
 
 ## Installation
 
@@ -22,7 +20,15 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+It's simple: `assert_zone ZONE_FILE [NAMESERVER] [options]`
+
+Assuming you have a zone file named `zone.txt` in the current directory, you can run `assert_zone zone.txt` to verify that each record in the zone file matches what the nameserver responds with.
+
+You can also specify a nameserver: `assert_zone zone.txt ns1.example.com`.
+
+There are a few option flags you can add to the command:
+
+* `--color` will display the results in color
 
 ## Development
 
@@ -32,10 +38,9 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/assert_zone.
+Bug reports and pull requests are welcome on GitHub at https://github.com/dwradcliffe/assert_zone.
 
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
