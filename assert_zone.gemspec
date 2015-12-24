@@ -24,5 +24,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'rspec', '~> 3.4.0'
   spec.add_dependency 'rspec-dns', '~> 0.1.6'
-  spec.add_dependency 'dns-zone', '~> 0.2.0'
+  spec.add_dependency 'dns-zone', '~> 0.3.1'
 end
