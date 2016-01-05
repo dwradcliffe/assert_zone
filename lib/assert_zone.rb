@@ -4,7 +4,7 @@ require 'rspec'
 require 'rspec-dns'
 
 module AssertZone
-  def self.run(filename, nameserver: nil, rspec_flags: [], use_local_resolver: false)
+  def self.run(filename, nameserver: nil, rspec_flags: [], use_local_resolver: false, skip_soa: false, skip_ns: false)
     ns_config = {}
     ns_config[:nameserver] = nameserver if nameserver
 
@@ -18,7 +18,8 @@ module AssertZone
     end
 
     zone.records.each do |record|
-      next if ['SOA', 'NS'].include?(record.type)
+      next if record.is_a?(DNS::Zone::RR::SOA) if skip_soa
+      next if record.is_a?(DNS::Zone::RR::NS) if skip_ns
 
       fqdn = record.label == '@' ? zone.origin : "#{record.label}.#{zone.origin}".chomp('.')
 

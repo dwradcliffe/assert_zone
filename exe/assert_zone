@@ -17,6 +17,12 @@ OptionParser.new do |opts|
   opts.on('--use-local-resolver', 'Use local resolver settings instead of explicit nameserver') do |v|
     options[:use_local_resolver] = true
   end
+  opts.on('--skip-ns', 'Skip NS records') do |v|
+    options[:skip_ns] = true
+  end
+  opts.on('--skip-soa', 'Skip SOA record') do |v|
+    options[:skip_soa] = true
+  end
   opts.on_tail('-h', '--help', 'Show this message') do
     puts opts
     exit
