@@ -4,7 +4,7 @@ require 'rspec'
 require 'rspec-dns'
 
 module AssertZone
-  def self.run(filename, nameserver: nil, rspec_flags: [], use_local_resolver: false, skip_soa: false, skip_ns: false)
+  def self.run(filename, nameserver: nil, rspec_flags: [], use_local_resolver: false, skip_soa: false, skip_ns: false, ignore_ttl: false)
     ns_config = {}
     ns_config[:nameserver] = nameserver if nameserver
 
@@ -24,15 +24,21 @@ module AssertZone
       fqdn = record.label == '@' ? zone.origin : "#{record.label}.#{zone.origin}".chomp('.')
 
       describe fqdn do
-        if record.is_a?(DNS::Zone::RR::A)
-          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl).and_address(record.address) }
-        elsif record.is_a?(DNS::Zone::RR::CNAME)
-          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl).and_domainname(record.domainname.chomp('.')) }
-        elsif record.is_a?(DNS::Zone::RR::TXT)
-          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl).and_data(record.text) }
-        else
-          it { is_expected.to have_dns.with_type(record.type).config(ns_config).and_ttl(record.ttl) }
-          warn "WARN: Unsupported record type: #{record.type}. Value of record for #{fqdn} will not be tested."
+        it do
+          have_correct_dns = have_dns.with_type(record.type).config(ns_config)
+          have_correct_dns = have_correct_dns.and_ttl(record.ttl) unless ignore_ttl
+
+          if record.is_a?(DNS::Zone::RR::A)
+            have_correct_dns = have_correct_dns.and_address(record.address)
+          elsif record.is_a?(DNS::Zone::RR::CNAME)
+            have_correct_dns = have_correct_dns.and_domainname(record.domainname.chomp('.'))
+          elsif record.is_a?(DNS::Zone::RR::TXT)
+            have_correct_dns = have_correct_dns.and_data(record.text)
+          else
+            warn "WARN: Unsupported record type: #{record.type}. Value of #{record.type} record for #{fqdn} will not be tested."
+          end
+
+          is_expected.to have_correct_dns
         end
       end
     end

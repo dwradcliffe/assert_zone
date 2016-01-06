@@ -11,8 +11,12 @@ options = {
 
 OptionParser.new do |opts|
   opts.banner = "Usage: assert_zone ZONE_FILE [NAMESERVER] [options]"
-  opts.on('--color', 'Use color') do |v|
+  opts.on('-c', '--color', 'Enable color in the output.') do
     options[:rspec_flags] << '--color'
+  end
+  opts.on('-f', '--format FORMATTER', 'Choose a formatter.') do |v|
+    options[:rspec_flags] << '--format'
+    options[:rspec_flags] << v
   end
   opts.on('--use-local-resolver', 'Use local resolver settings instead of explicit nameserver') do |v|
     options[:use_local_resolver] = true
@@ -22,6 +26,9 @@ OptionParser.new do |opts|
   end
   opts.on('--skip-soa', 'Skip SOA record') do |v|
     options[:skip_soa] = true
+  end
+  opts.on('--ignore-ttl', 'Ignore TTL value') do |v|
+    options[:ignore_ttl] = true
   end
   opts.on_tail('-h', '--help', 'Show this message') do
     puts opts
@@ -33,4 +40,6 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-AssertZone.run(ARGV[0], nameserver: ARGV[1], rspec_flags: options[:rspec_flags], use_local_resolver: options[:use_local_resolver])
+options[:nameserver] = ARGV[1]
+
+AssertZone.run(ARGV[0], options)
